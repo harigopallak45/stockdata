@@ -3,42 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Prediction</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Stock Data Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script defer src="{{ url_for('static', filename='scripts.js') }}"></script>
+
 </head>
 <body>
-    <header>
-        <h1>Stock Prediction</h1>
-        <p>Welcome to the Stock Prediction Dashboard. Analyze historical data, make predictions, and view live updates.</p>
-    </header>
-    <section id="dataset-fetch">
-        <button id="fetch-dataset-btn">Fetch Dataset</button>
-        <div id="company-info"></div>
-        <button id="run-analysis-btn">Run Analysis</button>
-    </section>
-    <section id="historical-data">
-        <h2>Historical Data</h2>
-        <div id="historical-graph"></div>
-    </section>
-    <section id="prediction-comparison">
-        <h2>Historical vs. Prediction</h2>
-        <div id="comparison-graph"></div>
-    </section>
-    <section id="live-data">
-        <h2>Live Data</h2>
-        <div id="live-graph"></div>
-    </section>
-    <section id="company-prediction">
-        <h2>Company Prediction</h2>
-        <div id="prediction-info"></div>
-    </section>
-    <section id="month-wise-difference">
-        <h2>Month-Wise Data Difference</h2>
-        <div id="month-wise-diff"></div>
-    </section>
-    <footer>
-        <p>Footer information here.</p>
-    </footer>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <div class="container">
+        <h1>Stock Data Dashboard</h1>
+
+        <!-- File Upload Form -->
+        <div class="form-group">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <label for="file">Upload Dataset CSV:</label>
+                <input type="file" id="file" name="file" class="form-control" required>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        </div>
+
+        <!-- Buttons for Analysis and Plot -->
+        <div class="form-group">
+            <button id="runAnalysis" class="btn btn-success">Run Analysis</button>
+            <button id="fetchLiveData" class="btn btn-info">Fetch Live Data</button>
+            <button id="showPlot" class="btn btn-warning">Show Plot</button>
+        </div>
+
+        <!-- Display Results -->
+        <div id="results" class="form-group">
+            <h3>Company Info:</h3>
+            <pre id="companyInfo"></pre>
+
+            <h3>Historical Data:</h3>
+            <pre id="historicalData"></pre>
+
+            <h3>Prediction Data:</h3>
+            <pre id="predictionData"></pre>
+
+            <h3>Month-Wise Differences:</h3>
+            <pre id="monthWiseDiff"></pre>
+        </div>
+
+        <!-- Plot Display -->
+        <div id="plot">
+            <img id="plotImage" src="" alt="Stock Plot" style="max-width: 100%; height: auto;">
+        </div>
+    </div>
+
+    <!-- JavaScript for AJAX calls -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>

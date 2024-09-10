@@ -1,44 +1,68 @@
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
 }
 
-header {
-    background-color: #333;
-    color: white;
-    padding: 20px;
+.container {
+    margin-top: 20px;
+    max-width: 1200px;
+}
+
+/* Header */
+h1 {
+    margin-bottom: 20px;
+    color: #343a40;
     text-align: center;
 }
 
-section {
-    margin: 20px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="file"] {
+    margin-bottom: 10px;
 }
 
 button {
-    padding: 10px 20px;
-    margin: 5px;
-    border: none;
+    margin-right: 10px;
+}
+
+/* Results Section */
+#results {
+    margin-top: 20px;
+}
+
+pre {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
     border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
+    padding: 15px;
+    overflow-x: auto;
+    white-space: pre-wrap; /* Allows wrapping of long lines */
 }
 
-button:hover {
-    background-color: #0056b3;
+h3 {
+    margin-top: 20px;
+    color: #495057;
 }
 
-footer {
-    background-color: #333;
-    color: white;
-    padding: 10px;
+/* Plot Display */
+#plot {
+    margin-top: 20px;
     text-align: center;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
 }
