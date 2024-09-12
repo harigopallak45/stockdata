@@ -1,0 +1,53 @@
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    color: #212529;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    margin-top: 30px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #007bff;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.btn {
+    margin-right: 10px;
+}
+
+/* Results Section */
+#results {
+    margin-top: 30px;
+}
+
+#results h3 {
+    color: #343a40;
+}
+
+pre {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    border-radius: 5px;
+    overflow: auto;
+}
+
+/* Plot Display */
+#plot {
+    margin-top: 30px;
+    text-align: center;
+}
+
+#plotImage {
+    max-width: 100%;
+    height: auto;
+}
+ 

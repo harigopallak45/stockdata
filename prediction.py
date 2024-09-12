@@ -1,18 +1,18 @@
+import logging
+import os
+import io
 import pandas as pd
-import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
-import logging
-import io
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def analyze_data(filepath):
     """
-    Analyzes the dataset to generate historical data, predictions, and month-wise differences.
+    Analyzes the dataset to generate historical data, predictions, month-wise differences, and plots.
     Assumes dataset contains columns like 'Date', 'Close', etc.
     """
     try:
@@ -60,11 +60,22 @@ def analyze_data(filepath):
         df['Month'] = df['Date'].dt.to_period('M')
         month_wise_diff = df.groupby('Month')['Close'].agg(['min', 'max']).reset_index()
         month_wise_diff['Difference'] = month_wise_diff['max'] - month_wise_diff['min']
-        month_wise_diff = month_wise_diff.to_dict(orient='records')
-        logging.info('Month-wise differences calculated successfully.')
+        
+        # Plotting month-wise differences
+        month_wise_diff_plot_path = os.path.join('uploads', 'month_wise_diff_plot.png')
+        plt.figure(figsize=(12, 6))
+        sns.barplot(x='Month', y='Difference', data=month_wise_diff)
+        plt.xlabel('Month')
+        plt.ylabel('Difference')
+        plt.title('Month-Wise Differences')
+        plt.xticks(rotation=90)
+        plt.tight_layout()
+        plt.savefig(month_wise_diff_plot_path, format='png')
+        plt.close()
+        logging.info('Month-wise differences plot generated successfully.')
 
-        # Plotting
-        buf = io.BytesIO()
+        # Plotting historical data and predictions
+        historical_vs_predictions_plot_path = os.path.join('uploads', 'historical_vs_predictions_plot.png')
         plt.figure(figsize=(12, 6))
         sns.lineplot(x='Date', y='Close', data=df, label='Historical Data')
         plt.plot(future_dates, predictions, label='Predictions', color='red')
@@ -74,12 +85,17 @@ def analyze_data(filepath):
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        logging.info('Plot generated successfully.')
+        plt.savefig(historical_vs_predictions_plot_path, format='png')
+        plt.close()
+        logging.info('Plot of historical data and predictions generated successfully.')
 
         # Return data
-        return historical_data, prediction_data, month_wise_diff, buf
+        return {
+            'historical_data': historical_data,
+            'prediction_data': prediction_data,
+            'month_wise_diff_plot': month_wise_diff_plot_path,
+            'historical_vs_predictions_plot': historical_vs_predictions_plot_path
+        }
 
     except ValueError as ve:
         logging.error(f'Value error during data analysis: {ve}')
