@@ -43,9 +43,10 @@ def parse_live_data(data):
     :return: A dictionary with the timestamp and price, or an error message.
     """
     try:
-        # Example for Alpha Vantage (adjust for your chosen API)
-        timestamp = list(data['Time Series (1min)'].keys())[0]
-        price = data['Time Series (1min)'][timestamp]['1. open']
+        # Adjust the parsing logic according to the API you're using
+        # Example below assumes a common structure; adjust if necessary
+        timestamp = list(data['Time Series (1min)'].keys())[0]  # Adjust key if different
+        price = data['Time Series (1min)'][timestamp]['1. open']  # Adjust key if different
         return {
             'timestamp': timestamp,
             'price': price

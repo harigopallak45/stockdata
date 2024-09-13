@@ -5,14 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDiv = document.getElementById('results');
     const plotDiv = document.getElementById('plot');
     const companyInfoP = document.getElementById('companyInfo');
-    const historicalDataP = document.getElementById('historicalData');
-    const predictionDataP = document.getElementById('predictionData');
-    const monthWiseDiffP = document.getElementById('monthWiseDiff');
     const liveDataP = document.getElementById('liveData');
-    const plotImage = document.getElementById('plotImage');
+    const prophetPlotImage = document.getElementById('prophetPlotImage');
+    const lstmPlotImage = document.getElementById('lstmPlotImage');
+    const xgboostPlotImage = document.getElementById('xgboostPlotImage');
     const monthWiseDiffPlotImage = document.getElementById('monthWiseDiffPlotImage');
-    const fetchLiveDataBtn = document.getElementById('fetchLiveData');
-    const showPlotBtn = document.getElementById('showPlot');
     const downloadBtn = document.getElementById('downloadBtn');
 
     // Initially hide the results and plot sections
@@ -61,16 +58,20 @@ document.addEventListener('DOMContentLoaded', () => {
             // Display company info
             companyInfoP.textContent = `Company Name: ${data.company_info.company_name}\nDescription: ${data.company_info.description}`;
 
-            // Display live data (if available)
-            if (data.live_data && !data.live_data.error) {
-                liveDataP.textContent = JSON.stringify(data.live_data, null, 2);
-            } else {
-                liveDataP.textContent = 'No live data available.';
+            // Set the plot images (historical data and month-wise difference)
+            if (data.historical_data_plot_url) {
+                plotImage.src = data.historical_data_plot_url;
+                plotImage.style.display = 'block';
+            }
+            if (data.month_wise_diff_plot_url) {
+                monthWiseDiffPlotImage.src = data.month_wise_diff_plot_url;
+                monthWiseDiffPlotImage.style.display = 'block';
             }
 
-            // Set the plot images (historical data and month-wise difference)
-            plotImage.src = data.historical_data_plot_url;
-            monthWiseDiffPlotImage.src = data.month_wise_diff_plot_url;
+            // Fetch and display prediction plots automatically after file upload
+            await fetchAndDisplayPlot('/prophet_prediction', prophetPlotImage);
+            await fetchAndDisplayPlot('/lstm_prediction', lstmPlotImage);
+            await fetchAndDisplayPlot('/xgboost_prediction', xgboostPlotImage);
 
         } catch (error) {
             console.error('Error:', error);
@@ -78,39 +79,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle the button click to fetch live data
-    fetchLiveDataBtn.addEventListener('click', async () => {
+    // Function to fetch and display prediction plots
+    async function fetchAndDisplayPlot(endpoint, plotImageElement) {
         try {
-            const response = await fetch('/live_data');
+            const response = await fetch(endpoint, { method: 'POST' });
 
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
             }
 
-            const liveData = await response.json();
-            if (liveData.error) {
-                alert(`Error: ${liveData.error}`);
-                return;
-            }
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            plotImageElement.src = url;
+            plotImageElement.style.display = 'block';
 
-            // Display fetched live data
-            liveDataP.textContent = JSON.stringify(liveData, null, 2);
-            resultsDiv.style.display = 'block';  // Show results section if it was hidden
+            plotDiv.style.display = 'block';
 
         } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while fetching live data.');
+            console.error(`Error fetching plot from ${endpoint}:`, error);
+            alert(`An error occurred while fetching the plot from ${endpoint}.`);
         }
-    });
-
-    // Handle the button click to display the plot
-    showPlotBtn.addEventListener('click', () => {
-        if (plotImage.src || monthWiseDiffPlotImage.src) {
-            plotDiv.style.display = 'block';
-        } else {
-            alert('No plots available to display.');
-        }
-    });
+    }
 
     // Handle form submission for downloading stock data
     downloadForm.addEventListener('submit', async (event) => {
@@ -121,7 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const endDate = document.getElementById('endDate').value;
 
         try {
-            const response = await fetch(`/download_stock_data?ticker=${ticker}&start_date=${startDate}&end_date=${endDate}`);
+            const response = await fetch('/download_stock_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ticker, start_date: startDate, end_date: endDate })
+            });
 
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
@@ -131,8 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Stock data downloaded successfully!');
 
             // Optionally, trigger file upload or show stock data after download
-            // $('#downloadModal').modal('hide'); // Close the modal
-            // Process downloaded data, like showing plots etc.
+            $('#downloadModal').modal('hide'); // Close the modal
+
         } catch (error) {
             console.error('Error downloading stock data:', error);
             alert('An error occurred while downloading stock data.');

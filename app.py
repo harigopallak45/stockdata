@@ -1,13 +1,22 @@
 import logging
 import os
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Use non-GUI backend
+import matplotlib.pyplot as plt
 from flask import Flask, request, render_template, jsonify, send_file
 from werkzeug.utils import secure_filename
-from historical import plot_historical_data
-from prediction import analyze_data
-from live import get_live_stock_data
-from get_company_info import get_company_info
 import yfinance as yf
-
+from prophet import Prophet
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
+from sklearn.preprocessing import MinMaxScaler
+from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split
+from prediction import analyze_data, prophet_prediction, lstm_prediction, xgboost_prediction
+from get_company_info import get_company_info
+from live import get_live_stock_data
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -65,12 +74,15 @@ def upload_file():
             if 'error' in result:
                 raise ValueError(result['error'])
 
-            # Return plot URLs instead of JSON data
+            # Return plot URLs and data
             return jsonify({
                 'company_info': company_info,
                 'historical_data_plot_url': '/plot_image',
                 'month_wise_diff_plot_url': '/month_wise_diff_plot',
-                'live_data': live_data
+                'live_data': live_data,
+                'prophet_plot_url': '/prophet_prediction',
+                'lstm_plot_url': '/lstm_prediction',
+                'xgboost_plot_url': '/xgboost_prediction'
             })
 
         except Exception as e:
@@ -81,6 +93,42 @@ def upload_file():
                 os.remove(file_path)
     else:
         return jsonify({'error': 'Invalid file format'}), 400
+
+@app.route('/prophet_prediction', methods=['POST'])
+def prophet_prediction_route():
+    """Endpoint to generate and serve Prophet prediction plot."""
+    try:
+        return send_file(
+            os.path.join(app.config['UPLOAD_FOLDER'], 'prophet_3year_prediction.png'),
+            mimetype='image/png'
+        )
+    except Exception as e:
+        logging.error(f'Error generating Prophet prediction: {e}')
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/lstm_prediction', methods=['POST'])
+def lstm_prediction_route():
+    """Endpoint to generate and serve LSTM prediction plot."""
+    try:
+        return send_file(
+            os.path.join(app.config['UPLOAD_FOLDER'], 'lstm_prediction.png'),
+            mimetype='image/png'
+        )
+    except Exception as e:
+        logging.error(f'Error generating LSTM prediction: {e}')
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/xgboost_prediction', methods=['POST'])
+def xgboost_prediction_route():
+    """Endpoint to generate and serve XGBoost prediction plot."""
+    try:
+        return send_file(
+            os.path.join(app.config['UPLOAD_FOLDER'], 'xgboost_prediction.png'),
+            mimetype='image/png'
+        )
+    except Exception as e:
+        logging.error(f'Error generating XGBoost prediction: {e}')
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/plot_image')
 def plot_image():
@@ -94,9 +142,20 @@ def plot_image():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/month_wise_diff_plot')
+def month_wise_diff_plot():
+    """Endpoint to serve the month-wise differences plot image."""
+    try:
+        plot_image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'month_wise_diff_plot.png')
+        if os.path.exists(plot_image_path):
+            return send_file(plot_image_path, mimetype='image/png')
+        else:
+            return jsonify({'error': 'Month-wise differences plot image not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-# Download stock data function
 def download_stock_data(ticker, start_date, end_date):
+    """Download stock data from Yahoo Finance."""
     stock_data = yf.download(ticker, start=start_date, end=end_date)
     file_name = f"{ticker}_stock_data.csv"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
@@ -114,21 +173,9 @@ def download_stock():
         file_path = download_stock_data(ticker, start_date, end_date)
         return jsonify({'message': f"Stock data for {ticker} downloaded successfully.", 'file_path': file_path})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-
-@app.route('/month_wise_diff_plot')
-def month_wise_diff_plot():
-    """Endpoint to serve the month-wise differences plot image."""
-    try:
-        plot_image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'month_wise_diff_plot.png')
-        if os.path.exists(plot_image_path):
-            return send_file(plot_image_path, mimetype='image/png')
-        else:
-            return jsonify({'error': 'Month-wise differences plot image not found'}), 404
-    except Exception as e:
+        logging.error(f'Error downloading stock data: {e}')
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     app.run(debug=True)
