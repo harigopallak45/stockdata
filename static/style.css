@@ -2,16 +2,28 @@
 body {
     background-color: #f8f9fa;
     color: #212529;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+/* Container */
 .container {
     margin-top: 30px;
 }
 
+/* Header */
 h1 {
     margin-bottom: 20px;
     color: #007bff;
+    text-align: center;
+    font-size: 2.5rem;
+    transition: color 0.3s ease;
+}
+
+h1:hover {
+    color: #0056b3;
 }
 
 /* Form Styles */
@@ -19,35 +31,79 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Buttons */
 .btn {
     margin-right: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
 }
 
 /* Results Section */
 #results {
     margin-top: 30px;
+    transition: opacity 0.5s ease-in-out;
 }
 
 #results h3 {
     color: #343a40;
+    margin-top: 10px;
 }
 
 pre {
     background-color: #ffffff;
     border: 1px solid #dee2e6;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 15px;
+    border-radius: 8px;
     overflow: auto;
+    transition: background-color 0.3s ease;
+}
+
+pre:hover {
+    background-color: #f1f1f1;
 }
 
 /* Plot Display */
 #plot {
     margin-top: 30px;
     text-align: center;
+    transition: opacity 0.5s ease-in-out;
 }
 
-#plotImage {
+#plot h3 {
+    color: #343a40;
+    margin-top: 10px;
+}
+
+#plotImage, #monthWiseDiffPlotImage {
     max-width: 100%;
     height: auto;
+    transition: opacity 0.5s ease;
 }
- 
+
+/* Modal Styles */
+.modal-content {
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.modal-dialog {
+    transition: opacity 0.3s ease;
+}
+
+/* Show/Hide Transitions */
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.fade-in.show {
+    opacity: 1;
+}
+
+.modal-dialog.show {
+    opacity: 1;
+}

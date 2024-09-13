@@ -62,7 +62,7 @@ def analyze_data(filepath):
         month_wise_diff['Difference'] = month_wise_diff['max'] - month_wise_diff['min']
         
         # Plotting month-wise differences
-        month_wise_diff_plot_path = os.path.join('../uploads', 'month_wise_diff_plot.png')
+        month_wise_diff_plot_path = os.path.join('uploads', 'month_wise_diff_plot.png')
         plt.figure(figsize=(12, 6))
         sns.barplot(x='Month', y='Difference', data=month_wise_diff)
         plt.xlabel('Month')
@@ -75,7 +75,7 @@ def analyze_data(filepath):
         logging.info('Month-wise differences plot generated successfully.')
 
         # Plotting historical data and predictions
-        historical_vs_predictions_plot_path = os.path.join('../uploads', 'historical_vs_predictions_plot.png')
+        historical_vs_predictions_plot_path = os.path.join('uploads', 'historical_vs_predictions_plot.png')
         plt.figure(figsize=(12, 6))
         sns.lineplot(x='Date', y='Close', data=df, label='Historical Data')
         plt.plot(future_dates, predictions, label='Predictions', color='red')

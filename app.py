@@ -6,6 +6,8 @@ from historical import plot_historical_data
 from prediction import analyze_data
 from live import get_live_stock_data
 from get_company_info import get_company_info
+import yfinance as yf
+
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -91,6 +93,30 @@ def plot_image():
             return jsonify({'error': 'Plot image not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# Download stock data function
+def download_stock_data(ticker, start_date, end_date):
+    stock_data = yf.download(ticker, start=start_date, end=end_date)
+    file_name = f"{ticker}_stock_data.csv"
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    stock_data.to_csv(file_path)
+    return file_path
+
+@app.route('/download_stock_data', methods=['POST'])
+def download_stock():
+    data = request.get_json()
+    ticker = data.get('ticker')
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+
+    try:
+        file_path = download_stock_data(ticker, start_date, end_date)
+        return jsonify({'message': f"Stock data for {ticker} downloaded successfully.", 'file_path': file_path})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/month_wise_diff_plot')
 def month_wise_diff_plot():
