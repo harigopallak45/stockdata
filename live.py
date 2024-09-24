@@ -1,76 +1,54 @@
-import requests
+import yfinance as yf
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def fetch_live_data(api_url, params):
-    
+def fetch_live_data(symbol):
+    """
+    Fetches live stock data using yfinance.
+
+    :param symbol: Stock symbol (e.g., AAPL for Apple).
+    :return: Live stock data (current price and related info) or an error message.
+    """
     try:
-        response = requests.get(api_url, params=params)
-        logging.info(f'Response Status Code: {response.status_code}')
-        logging.info(f'Response Content: {response.text}')  # Log full response content for debugging
+        stock = yf.Ticker(symbol)
+        data = stock.history(period='1d', interval='1m')  # Get intraday data (1-minute interval)
+        
+        if data.empty:
+            raise ValueError(f"No data found for symbol {symbol}")
 
-        if response.status_code == 429:
-            logging.error('Rate limit exceeded. Please wait before making more requests.')
-            return {'error': 'Rate limit exceeded. Please try again later.'}
+        # Get the latest price from the most recent minute
+        latest_data = data.iloc[-1]
+        return {
+            'timestamp': latest_data.name,  # Latest timestamp
+            'price': latest_data['Close'],  # Latest close price
+        }
+    except Exception as e:
+        logging.error(f'Error fetching live data: {e}')
+        return {'error': str(e)}
 
-        response.raise_for_status()  # Raise an exception for HTTP errors
+def get_live_stock_data(symbol):
+    """
+    Retrieves and parses live stock data.
 
-        data = response.json()
-        return data
-
-    except requests.exceptions.HTTPError as http_err:
-        logging.error(f'HTTP error occurred: {http_err}')
-        return {'error': f'HTTP error occurred: {http_err}'}
-    except requests.exceptions.RequestException as err:
-        logging.error(f'Error fetching live data: {err}')
-        return {'error: str(err)'}
-
-def get_live_stock_data(api_url, params):
-
-    data = fetch_live_data(api_url, params)
+    :param symbol: Stock symbol (e.g., AAPL for Apple).
+    :return: Parsed live stock data or an error message.
+    """
+    data = fetch_live_data(symbol)
     if 'error' in data:
         return data
 
-    return parse_live_data(data)
+    return data  # This returns the live stock data in the format {timestamp, price}
 
-def parse_live_data(data):
+# # Example usage
+# if __name__ == '__main__':
+#     symbol = 'AAPL'  # Apple's stock symbol
+#     stock_data = get_live_stock_data(symbol)
     
-    try:
-        # Adjust the parsing logic according to the API you're using
-        time_series = data.get('Time Series (1min)', {})
-        if not time_series:
-            raise KeyError('Time Series (1min) missing in the data')
-
-        # Get the most recent timestamp
-        timestamp = list(time_series.keys())[0]
-
-        # Get the stock price at the timestamp
-        price = time_series[timestamp]['1. open']
-
-        return {
-            'timestamp': timestamp,
-            'price': price
-        }
-
-    except KeyError as e:
-        logging.error(f'Missing key in data: {e}')
-        return {'error': f'Missing key in data: {e}'}
-    except Exception as e:
-        logging.error(f'Error parsing live data: {e}')
-        return {'error': str(e)}
-
-if __name__ == '__main__':
-    # Example usage of the code
-    api_url = "https://www.alphavantage.co/query"  # Example API URL
-    params = {
-        'apikey': 'your_api_key',    # Replace with your API key
-        'symbol': 'AAPL',            # Replace with the stock symbol you're querying
-        'interval': '1min',          # Set the interval (e.g., 1min, 5min, 15min)
-        'function': 'TIME_SERIES_INTRADAY'
-    }
-
-    # Fetch and display live stock data
-    live_data = get_live_stock_data(api_url, params)
-    print(live_data)
+#     if 'error' in stock_data:
+#         print(f"Error: {stock_data['error']}")
+#     else:
+#         print(f"Latest stock data for {symbol}:")
+#         print(f"Timestamp: {stock_data['timestamp']}")
+#         print(f"Price: ${stock_data['price']}")

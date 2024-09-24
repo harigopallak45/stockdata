@@ -1,40 +1,35 @@
 import pandas as pd
 import logging
 
-def get_company_info(csv_path, filename, delimiter=',', quotechar='"'):
+def get_company_info(file_path, filename):
     try:
-        # Load the CSV file while handling potential parsing errors
-        company_info_df = pd.read_csv(csv_path, delimiter=delimiter, quotechar=quotechar)
+        # Load the CSV file with additional options
+        df = pd.read_csv(file_path, delimiter=',', quotechar='"', on_bad_lines='skip')
+        
+        # Check for required columns
+        if 'filename' not in df.columns or 'company_name' not in df.columns or 'description' not in df.columns:
+            return {'error': 'Required columns not found in the dataset.'}
 
-        if 'filename' not in company_info_df.columns or 'company_name' not in company_info_df.columns:
-            return {'error': "Required columns not found in the CSV file."}
+        # Extract company information based on the filename
+        company_info = df[df['filename'] == filename]
 
-        # Initialize default values
-        company_name = 'Unknown'
-        description = 'No Description'
-        ticker = 'No Ticker'
-
-        # Loop through each row to find the matching filename
-        for _, row in company_info_df.iterrows():
-            if row['filename'] == filename:
-                company_name = row.get('company_name', 'Unknown')
-                description = row.get('description', 'No Description')
-                ticker = row.get('filename', 'No Ticker')
-                break
-
-        return {
-            'company_name': company_name,
-            'description': description,
-            'Ticker': ticker
-        }
+        if not company_info.empty:
+            company_info_dict = company_info.iloc[0].to_dict()
+            return {
+                'company_name': company_info_dict.get('company_name', 'Unknown'),
+                'description': company_info_dict.get('description', 'No Description'),
+                'Ticker': company_info_dict.get('filename', 'No Ticker')  # Ensure you have a ticker or filename
+            }
+        else:
+            return {'error': 'Company information not found for the provided file.'}
 
     except FileNotFoundError:
-        return {'error': f'File not found: {csv_path}'}
+        return {'error': f'File not found: {file_path}'}
     except pd.errors.EmptyDataError:
         return {'error': 'No data in the file.'}
     except pd.errors.ParserError as e:
         logging.error(f'Parser error: {e}')
         return {'error': f'Error parsing the file: {e}'}
     except Exception as e:
-        logging.error(f"Error retrieving company information: {e}")
+        logging.error(f'Error: {e}')
         return {'error': str(e)}

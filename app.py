@@ -3,39 +3,32 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  # Use non-GUI backend for saving plots
+matplotlib.use('Agg')  # Use non-GUI backend
 import matplotlib.pyplot as plt
 from flask import Flask, request, render_template, jsonify, send_file
 from werkzeug.utils import secure_filename
 import yfinance as yf
 from prophet import Prophet
-from tensorflow.keras.models import *
-from tensorflow.keras.layers import *
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
 from sklearn.preprocessing import MinMaxScaler
 from xgboost import XGBRegressor
-from sklearn.model_selection import *
-from prediction.lstm_prediction import *
-from prediction.prophet_prediction import *
-from prediction.xgboost_prediction import *
-from prediction.linear_regression_prediction import *
-from prediction.data_analysis import analyze_data
-from prediction.historical import *
+from sklearn.model_selection import train_test_split
+from prediction import analyze_data, prophet_prediction, lstm_prediction, xgboost_prediction
 from get_company_info import get_company_info
 from live import get_live_stock_data
 
 # Initialize the Flask app
 app = Flask(__name__)
 
-# Directory to store uploaded files and stock files
+# Directory to store uploaded files
 UPLOAD_FOLDER = 'uploads'
-DOWNLOAD_FOLDER = 'download'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'csv'}
 
 # Ensure the upload folder exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # Load company info CSV file once
 COMPANY_INFO_PATH = 'company_info.csv'
@@ -58,33 +51,25 @@ def upload_file():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
         file.save(file_path)
 
         try:
             logging.info(f'Processing file: {file_path}')
-            
-            # Fetch company info using the uploaded file name
             company_info = get_company_info(COMPANY_INFO_PATH, filename)
             logging.info(f'Company info: {company_info}')
 
             if 'error' in company_info:
                 raise ValueError(company_info['error'])
 
-            ticker = company_info.get('Ticker', None)
+            ticker = company_info.get('Ticker').replace('.csv', '') if company_info.get('Ticker') else None
 
             if ticker:
-                live_data_url = f'https://finance.yahoo.com/quote/{ticker}/'  # Updated URL format
-                live_data = get_live_stock_data(live_data_url, {'symbol': ticker})
+                live_data = get_live_stock_data(ticker)
             else:
                 live_data = {'error': 'Ticker not found in company info'}
 
-            # Analyze the data
             result = analyze_data(file_path)
-            if result == True:
-                logging.info('Data Fetched successfully')
-            else:
-                logging.info('Data Fetch failed')
-            logging.info(f'Live data is {result}')
 
             if 'error' in result:
                 raise ValueError(result['error'])
@@ -109,16 +94,18 @@ def upload_file():
     else:
         return jsonify({'error': 'Invalid file format'}), 400
 
+def log_plot_success(plot_name, plot_path):
+    if os.path.exists(plot_path) and os.path.getsize(plot_path) > 0:
+        logging.info(f'Successfully generated {plot_name} plot at {plot_path}')
+    else:
+        logging.error(f'Failed to generate {plot_name} plot or file is empty.')
+
 @app.route('/prophet_prediction', methods=['POST'])
 def prophet_prediction_route():
     """Endpoint to generate and serve Prophet prediction plot."""
     try:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'uploaded_file.csv')  # Use the correct uploaded file path
         plot_path = os.path.join(app.config['UPLOAD_FOLDER'], 'prophet_prediction.png')
-        if not os.path.exists(plot_path):
-            logging.info("Creating new Prophet prediction plot.")
-            plot_path = prophet_prediction(file_path)  # Pass the file path
-
+        log_plot_success("Prophet prediction", plot_path)
         return send_file(plot_path, mimetype='image/png')
     except Exception as e:
         logging.error(f'Error generating Prophet prediction: {e}')
@@ -128,12 +115,8 @@ def prophet_prediction_route():
 def lstm_prediction_route():
     """Endpoint to generate and serve LSTM prediction plot."""
     try:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'uploaded_file.csv')  # Use the correct uploaded file path
         plot_path = os.path.join(app.config['UPLOAD_FOLDER'], 'lstm_prediction.png')
-        if not os.path.exists(plot_path):
-            logging.info("Creating new LSTM prediction plot.")
-            plot_path = lstm_prediction(file_path)  # Pass the file path
-
+        log_plot_success("LSTM prediction", plot_path)
         return send_file(plot_path, mimetype='image/png')
     except Exception as e:
         logging.error(f'Error generating LSTM prediction: {e}')
@@ -143,12 +126,8 @@ def lstm_prediction_route():
 def xgboost_prediction_route():
     """Endpoint to generate and serve XGBoost prediction plot."""
     try:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'uploaded_file.csv')  # Use the correct uploaded file path
         plot_path = os.path.join(app.config['UPLOAD_FOLDER'], 'xgboost_prediction.png')
-        if not os.path.exists(plot_path):
-            logging.info("Creating new XGBoost prediction plot.")
-            plot_path = xgboost_prediction(file_path)  # Pass the file path
-
+        log_plot_success("XGBoost prediction", plot_path)
         return send_file(plot_path, mimetype='image/png')
     except Exception as e:
         logging.error(f'Error generating XGBoost prediction: {e}')
@@ -160,10 +139,13 @@ def plot_image():
     try:
         plot_image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'historical_vs_predictions_plot.png')
         if os.path.exists(plot_image_path):
+            logging.info('Serving historical vs predictions plot.')
             return send_file(plot_image_path, mimetype='image/png')
         else:
+            logging.error('Historical vs predictions plot image not found.')
             return jsonify({'error': 'Plot image not found'}), 404
     except Exception as e:
+        logging.error(f'Error serving historical vs predictions plot: {e}')
         return jsonify({'error': str(e)}), 500
 
 @app.route('/month_wise_diff_plot')
@@ -172,18 +154,21 @@ def month_wise_diff_plot():
     try:
         plot_image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'month_wise_diff_plot.png')
         if os.path.exists(plot_image_path):
+            logging.info('Serving month-wise differences plot.')
             return send_file(plot_image_path, mimetype='image/png')
         else:
+            logging.error('Month-wise differences plot image not found.')
             return jsonify({'error': 'Month-wise differences plot image not found'}), 404
     except Exception as e:
+        logging.error(f'Error serving month-wise differences plot: {e}')
         return jsonify({'error': str(e)}), 500
 
 def download_stock_data(ticker, start_date, end_date):
     """Download stock data from Yahoo Finance."""
     stock_data = yf.download(ticker, start=start_date, end=end_date)
-    file_name = f"{ticker}.csv"
-    file_path = os.path.join(app.config['DOWNLOAD_FOLDER'], file_name)
-    stock_data.to_csv(file_path, index=True)  # Save with index to include dates
+    file_name = f"{ticker}_stock_data.csv"
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    stock_data.to_csv(file_path)
     return file_path
 
 @app.route('/download_stock_data', methods=['POST'])

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDiv = document.getElementById('results');
     const plotDiv = document.getElementById('plot');
     const companyInfoP = document.getElementById('companyInfo');
-    const liveDataP = document.getElementById('liveData');
+    const liveData = document.getElementById('liveData');
     const prophetPlotImage = document.getElementById('prophetPlotImage');
     const lstmPlotImage = document.getElementById('lstmPlotImage');
     const xgboostPlotImage = document.getElementById('xgboostPlotImage');
@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Display company info
             companyInfoP.textContent = `Company Name: ${data.company_info.company_name}\nDescription: ${data.company_info.description}`;
+
+            // Display live data
+            liveData.textContent = `Live Data: ${data.livedata}`;
 
             // Set the plot images (historical data and month-wise difference)
             if (data.historical_data_plot_url) {
