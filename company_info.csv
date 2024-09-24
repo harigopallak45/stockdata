@@ -1,14 +1,14 @@
 filename,company_name,description
 GOOGL.csv,Google Inc.,A multinational technology company specializing in internet-related services and products.
-AAPL.csv,Apple Inc.,An American technology company that designs, manufactures, and markets consumer electronics and software.
-MSFT.csv,Microsoft Corporation,An American multinational technology company known for its software products, hardware, and cloud services.
-AMZN.csv,Amazon.com Inc.,An American multinational technology company focusing on e-commerce, cloud computing, and artificial intelligence.
-TSLA.csv,Tesla Inc.,An American electric vehicle and clean energy company that designs, manufactures, and sells electric vehicles and renewable energy solutions.
-FB.csv,Meta Platforms Inc.,A technology company known for its social media platforms including Facebook, Instagram, and WhatsApp.
-NFLX.csv,Netflix Inc.,An American subscription-based streaming service that offers a wide variety of TV shows, movies, and original content.
+AAPL.csv,Apple Inc.,An American technology company that designs manufactures and markets consumer electronics and software.
+MSFT.csv,Microsoft Corporation,An American multinational technology company known for its software products  hardware and cloud services.
+AMZN.csv,Amazon.com Inc.,An American multinational technology company focusing on e-commerce cloud computing and artificial intelligence.
+TSLA.csv,Tesla Inc.,An American electric vehicle and clean energy company that designs manufactures and sells electric vehicles and renewable energy solutions.
+FB.csv,Meta Platforms Inc.,A technology company known for its social media platforms including Facebook Instagram and WhatsApp.
+NFLX.csv,Netflix Inc.,An American subscription-based streaming service that offers a wide variety of TV shows movies and original content.
 IBM.csv,International Business Machines Corporation,An American multinational technology and consulting company providing a range of services including cloud computing and AI.
 NVDA.csv,NVIDIA Corporation,An American technology company known for its graphics processing units (GPUs) for gaming and professional markets.
-BA.csv,Boeing Company,An American multinational corporation that designs, manufactures, and sells airplanes, rotorcraft, rockets, satellites, and telecommunications equipment.
+BA.csv,Boeing Company,An American multinational corporation that designs manufactures and sells airplanes rotorcraft rocket satellites and telecommunications equipment.
 DIS.csv,Walt Disney Company,An American diversified multinational mass media and entertainment conglomerate.
 HD.csv,Home Depot Inc.,An American home improvement supplies retailing company.
 KO.csv,Coca-Cola Company,An American multinational corporation that produces non-alcoholic beverages.
@@ -23,9 +23,9 @@ XOM.csv,ExxonMobil Corporation,An American multinational oil and gas corporation
 CVX.csv,Chevron Corporation,An American multinational corporation in the energy sector.
 T.csv,AT&T Inc.,An American multinational conglomerate holding company and one of the largest telecommunications companies.
 UNH.csv,UnitedHealth Group Incorporated,An American for-profit managed health care company.
-WMT.csv,Walmart Inc.,An American multinational retail corporation that operates a chain of hypermarkets, discount department stores, and grocery stores.
-MRK.csv,Merck & Co., Inc.,An American multinational pharmaceutical company.
-BA.csv,Boeing Company,An American multinational corporation that designs, manufactures, and sells airplanes, rotorcraft, rockets, satellites, and telecommunications equipment.
+WMT.csv,Walmart Inc.,An American multinational retail corporation that operates a chain of hypermarkets discount department stores and grocery stores.
+MRK.csv,Merck & Co., Inc.An American multinational pharmaceutical company.
+BA.csv,Boeing Company,An American multinational corporation that designsmanufactures and sells airplanes rotorcraft rockets satellites and telecommunications equipment.
 BMY.csv,Bristol-Myers Squibb Company,An American pharmaceutical company specializing in medications.
 GILD.csv,Gilead Sciences Inc.,An American biopharmaceutical company known for its innovative therapies.
 AMGN.csv,Amgen Inc.,An American multinational biopharmaceutical company.
@@ -35,12 +35,12 @@ ISRG.csv,Intuitive Surgical Inc.,An American company known for its robotic surgi
 ALGN.csv,Align Technology Inc.,An American medical device company known for its Invisalign clear aligners.
 BIDU.csv,Baidu Inc.,A Chinese multinational technology company specializing in internet services and AI.
 SBUX.csv,Starbucks Corporation,An American multinational chain of coffeehouses and roastery reserves.
-LMT.csv,Lockheed Martin Corporation,An American aerospace, defense, and security company.
+LMT.csv,Lockheed Martin Corporation,An American aerospace defense and security company.
 CAT.csv,Caterpillar Inc.,An American manufacturer of construction and mining equipment.
 DE.csv,Deere & Company,An American corporation that manufactures agricultural machinery.
 GM.csv,General Motors Company,An American multinational automotive corporation.
 F.csv,Ford Motor Company,An American multinational automaker.
-NKE.csv,Nike Inc.,An American multinational corporation that designs, manufactures, and markets sportswear and equipment.
+NKE.csv,Nike Inc.,An American multinational corporation that designs manufactures and markets sportswear and equipment.
 MCD.csv,McDonald's Corporation,An American fast-food restaurant chain.
 RBLX.csv,Roblox Corporation,An American online platform and game creation system.
 TWTR.csv,Twitter Inc.,An American social media company.
