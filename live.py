@@ -5,12 +5,6 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def fetch_live_data(symbol):
-    """
-    Fetches live stock data using yfinance.
-
-    :param symbol: Stock symbol (e.g., AAPL for Apple).
-    :return: Live stock data (current price and related info) or an error message.
-    """
     try:
         stock = yf.Ticker(symbol)
         data = stock.history(period='1d', interval='1m')  # Get intraday data (1-minute interval)
@@ -29,12 +23,6 @@ def fetch_live_data(symbol):
         return {'error': str(e)}
 
 def get_live_stock_data(symbol):
-    """
-    Retrieves and parses live stock data.
-
-    :param symbol: Stock symbol (e.g., AAPL for Apple).
-    :return: Parsed live stock data or an error message.
-    """
     data = fetch_live_data(symbol)
     if 'error' in data:
         return data
